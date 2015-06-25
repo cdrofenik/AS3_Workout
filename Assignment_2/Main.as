@@ -12,6 +12,8 @@
 	public class Main extends MovieClip {
 
 		private var movieClp: MovieClip;
+		
+		//relative positions
 		private var xDisToCorner: Number; //x axis distance to right corner in percent
 		private var yDisToCroner: Number; //y axis distance to bottom corner in percent
 
@@ -34,19 +36,23 @@
 		}
 		
 		//parameterized function for scaling of custom movieclip with rectangle (for better visibility)
-		private function drawNewMovieClip(startX: int = 30, startY: int = 30, startWidth: int = 50, startHeight: int = 50, scaleXX: int = 1, scaleYY: int = 1) {
-			this.movieClp = new MovieClip();
-			this.movieClp.x = startX;
-			this.movieClp.y = startY;
-			var rectAngle = drawRectangle(0, 0, startWidth * scaleXX, startHeight * scaleYY);
-			this.movieClp.addChild(rectAngle);
-			this.addChild(this.movieClp);
-			
-			xDisToCorner = this.movieClp.x / this.stage.stageWidth;
-			yDisToCroner = this.movieClp.y / this.stage.stageHeight;
-			//showTraceData();
+		private function createNewMovieClip(startX: int = 30, startY: int = 30, startWidth: int = 50, startHeight: int = 50): MovieClip {
+			var tmpMovieClip = new MovieClip();
+			tmpMovieClip.x = startX;
+			tmpMovieClip.y = startY;
+			var rectAngle = drawRectangle(0, 0, startWidth, startHeight); // to see movie clip
+			tmpMovieClip.addChild(rectAngle); // to see movie clip
+			xDisToCorner = tmpMovieClip.x / this.stage.stageWidth;
+			yDisToCroner = tmpMovieClip.y / this.stage.stageHeight;
+			return tmpMovieClip;
 		}
 
+		//function scales movieClip in X and Y direction
+		private function scaleMovieClip(mvClip: MovieClip, scaleX: Number = 0, scaleY: Number = 0): void {
+			mvClip.scaleX += scaleX;
+			mvClip.scaleY += scaleY;
+		}
+		
 		//calculates percetwise different based on initilized values for each axis multiplied with the current size of that window axis
 		private function adjustMovieClipPositions(): void {
 			this.movieClp.x = xDisToCorner * this.stage.stageWidth;
@@ -55,27 +61,36 @@
 		}
 
 		private function resizeHandler(event: Event): void {
-					
 			adjustMovieClipPositions(); //adjust movie clip location
+			//showTraceData();
 		}
 
 		//Generate new random MovieClip
 		function onKeyDownHandler(event: KeyboardEvent): void {
 			if (event.keyCode == Keyboard.R) {
-				this.removeChild(movieClp);
-				drawNewMovieClip(randomRange(10, this.stage.stageWidth - (this.stage.stageWidth * 0.1)), randomRange(10, this.stage.stageHeight - (this.stage.stageHeight * 0.1)));
+				removeChild(movieClp);
+				movieClp = createNewMovieClip(randomRange(10, this.stage.stageWidth - (this.stage.stageWidth * 0.1)), randomRange(10, this.stage.stageHeight - (this.stage.stageHeight * 0.1)));
+				addChild(movieClp);
+				//showTraceData();
+			} else if (event.keyCode == Keyboard.UP) {
+				scaleMovieClip(movieClp, 0 , -1);
+			} else if (event.keyCode == Keyboard.DOWN) {
+				scaleMovieClip(movieClp, 0 , 1);
+			} else if (event.keyCode == Keyboard.RIGHT) {
+				scaleMovieClip(movieClp, 1);
+			} else if (event.keyCode == Keyboard.LEFT) {
+				scaleMovieClip(movieClp, -1);
 			}
 		}
 
 		public function Main() {
-			drawNewMovieClip();
-
+			movieClp = createNewMovieClip();
+			addChild(movieClp);
+			
 			this.stage.align = StageAlign.TOP_LEFT;
 			this.stage.scaleMode = StageScaleMode.NO_SCALE;
 			this.stage.addEventListener(Event.RESIZE, resizeHandler);
 			this.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDownHandler);
-
-
 		}
 	}
 }
